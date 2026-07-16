@@ -20,6 +20,6 @@ spec:
     spec:
       containers:
         - name: storefront
-          image: ghcr.io/policy-as-versioned-flux/storefront@sha256:2263b7062d62ae8e98054bd5b1e8ad79dda960ce3e2125829a730907de692a73 # v1.0.0
+          image: ghcr.io/policy-as-versioned-flux/storefront@sha256:dd36bd84218259814d245bf6430aa80b866e06186e15a524fb6e592675e78b4d # v1.0.0
           ports:
             - containerPort: 80
