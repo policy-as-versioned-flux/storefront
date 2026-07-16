@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storefront
+  namespace: default
+  labels:
+    mycompany.com/policy-version: "2.2.0"
+    department: retail
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storefront
+  template:
+    metadata:
+      labels:
+        app: storefront
+        mycompany.com/policy-version: "2.2.0"
+        department: retail
+    spec:
+      containers:
+        - name: storefront
+          image: ghcr.io/policy-as-versioned-flux/storefront@sha256:2263b7062d62ae8e98054bd5b1e8ad79dda960ce3e2125829a730907de692a73 # v1.0.0
+          ports:
+            - containerPort: 80
