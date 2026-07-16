@@ -1,0 +1,33 @@
+name: release
+
+# Ticket 07 (real-estate): builds and publishes this app's image on every
+# semver tag, digest-addressable -- fleet pins the resulting digest, the
+# storefront team's own reconcile cadence (this repo's own tags), separate
+# from every other team's.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build and push, tagged with the release version
+        run: |
+          set -euo pipefail
+          IMG="ghcr.io/${{ github.repository }}"
+          docker build -t "$IMG:${GITHUB_REF_NAME}" .
+          docker push "$IMG:${GITHUB_REF_NAME}"
+          digest=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMG:${GITHUB_REF_NAME}")
+          echo "Published: $digest"
+          echo "$digest" >> "$GITHUB_STEP_SUMMARY"
