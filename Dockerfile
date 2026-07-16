@@ -12,7 +12,12 @@ RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 FROM nginx:1.27-alpine
 COPY public/index.html /usr/share/nginx/html/index.html
-# Prove the dependency tree actually resolved, for anyone inspecting the
-# image -- not consumed at runtime, just evidence the deps stage was real.
-COPY --from=deps /app/package.json /usr/share/nginx/html/_package.json
+# The dependency tree's evidence -- package.json + the real generated
+# lockfile -- lives outside the nginx docroot (not publicly served) but
+# still in the shipped image: trivy's npm scanner reads the lockfile
+# directly, no node_modules needed. Without this, the final image (nginx
+# + one static HTML file) carries no npm manifest at all and the
+# vulnerability scanner has nothing to see -- found live while verifying
+# ticket 11, fixed here rather than left as a silent gap.
+COPY --from=deps /app/package.json /app/package-lock.json /opt/app-deps/
 EXPOSE 80
