@@ -12,12 +12,15 @@ RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 FROM nginx:1.27-alpine
 COPY public/index.html /usr/share/nginx/html/index.html
-# The dependency tree's evidence -- package.json + the real generated
-# lockfile -- lives outside the nginx docroot (not publicly served) but
-# still in the shipped image: trivy's npm scanner reads the lockfile
-# directly, no node_modules needed. Without this, the final image (nginx
-# + one static HTML file) carries no npm manifest at all and the
-# vulnerability scanner has nothing to see -- found live while verifying
-# ticket 11, fixed here rather than left as a silent gap.
-COPY --from=deps /app/package.json /app/package-lock.json /opt/app-deps/
+# The dependency tree's evidence lives outside the nginx docroot (not
+# publicly served) but still in the shipped image. Ships the real
+# node_modules too, not just the lockfile: trivy-operator's image-mode
+# scan only runs its node-pkg analyzer (reads each dependency's own
+# node_modules/*/package.json), not the npm lockfile analyzer -- found
+# live comparing `trivy image` against `trivy fs` on the identical
+# lockfile (image mode reported only this project's own name/version;
+# fs mode correctly parsed the full Angular/rxjs tree from the lockfile
+# alone). A real image-size-vs-scanner-visibility tradeoff, deliberately
+# taken here since the whole point of this app is that visibility.
+COPY --from=deps /app/package.json /app/package-lock.json /app/node_modules /opt/app-deps/
 EXPOSE 80
