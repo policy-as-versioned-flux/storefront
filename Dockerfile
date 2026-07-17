@@ -5,7 +5,7 @@
 # content itself is a hand-written static page (no `ng build` -- the point
 # of this app is the dependency staleness signal, not a compiled Angular
 # bundle) so the deploy stays fast and small.
-FROM node:18-alpine AS deps
+FROM node:18.20.8-alpine AS deps
 WORKDIR /app
 COPY package.json ./
 RUN npm install --legacy-peer-deps --no-audit --no-fund
