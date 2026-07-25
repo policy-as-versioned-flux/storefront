@@ -10,7 +10,7 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --legacy-peer-deps --no-audit --no-fund
 
-FROM nginx:1.27-alpine
+FROM nginx:1.31-alpine
 COPY public/index.html /usr/share/nginx/html/index.html
 # The dependency tree's evidence lives outside the nginx docroot (not
 # publicly served) but still in the shipped image. Ships the real
